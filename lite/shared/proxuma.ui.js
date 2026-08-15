@@ -1,0 +1,511 @@
+// Proxuma UI binding for the Security Engine
+// Handles navigation, theme switching, and rendering of scan results.
+
+(function () {
+
+  let lastScanSource = "manual"; // manual | qr
+
+
+  const scanInput = () => document.getElementById("scanInput");
+  const scanCard = () => document.getElementById("scanCard");
+  const themeToggleEl = () => document.getElementById("themeToggle");
+  const themeLabel = () => document.getElementById("themeLabel");
+
+  function showPage(pageId) {
+    const ids = ["home", "about", "scanner", "privacy", "transparency"];
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const active = id === pageId;
+      el.style.display = active ? "block" : "none";
+      el.classList.toggle("active-page", active);
+    });
+    document.querySelectorAll("[data-page]").forEach((btn) => {
+      const active = btn.getAttribute("data-page") === pageId;
+      btn.classList.toggle("active", active);
+      if (active) btn.setAttribute("aria-current", "page");
+      else btn.removeAttribute("aria-current");
+    });
+  }
+  window.showPage = showPage;
+
+  function applyTheme(theme) {
+    const body = document.body;
+    body.classList.remove("theme-light", "theme-dark");
+    if (theme === "dark") {
+      body.classList.add("theme-dark");
+      if (themeToggleEl()) themeToggleEl().checked = true;
+      if (themeLabel()) themeLabel().textContent = "Dark Neon Mode";
+    } else {
+      body.classList.add("theme-light");
+      if (themeToggleEl()) themeToggleEl().checked = false;
+      if (themeLabel()) themeLabel().textContent = "Light Mode";
+    }
+    try { localStorage.setItem("proxuma-theme", theme); } catch (e) {}
+  }
+
+  function initTheme() {
+    // Respect the HTML default theme first.
+    // This prevents a fresh Vercel domain with empty localStorage from flipping Lite into light mode.
+    let theme = document.body.classList.contains("theme-light") ? "light" : "dark";
+    try {
+      const stored = localStorage.getItem("proxuma-theme");
+      if (stored === "light" || stored === "dark") theme = stored;
+    } catch (e) {}
+    applyTheme(theme);
+  }
+
+  function toggleTheme() {
+    const body = document.body;
+    const isDark = body.classList.contains("theme-dark");
+    applyTheme(isDark ? "light" : "dark");
+  }
+  window.toggleTheme = toggleTheme;
+
+  function severityToClass(sev) {
+    switch (sev) {
+      case "critical": return "sev-critical";
+      case "high": return "sev-high";
+      case "medium": return "sev-medium";
+      default: return "sev-low";
+    }
+  }
+
+  function riskLevelToBadgeClass(level) {
+    switch (level) {
+      case "critical": return "risk-critical";
+      case "high": return "risk-high";
+      case "medium": return "risk-medium";
+      case "low": return "risk-low";
+      default: return "risk-safe";
+    }
+  }
+
+  function riskLevelToLabel(level) {
+    switch (level) {
+      case "critical": return "CRITICAL THREAT";
+      case "high": return "DANGER";
+      case "medium": return "CAUTION";
+      case "low": return "LOW RISK";
+      default: return "SAFE";
+    }
+  }
+
+  
+  function actionLabel(level){
+    switch(level){
+      case "critical": return "Strongly Not Recommended";
+      case "high": return "Verify Before Proceeding";
+      case "medium": return "Proceed With Caution";
+      case "low": return "Proceed With Awareness";
+      default: return "Safe to Open";
+    }
+  }
+
+  function extractPrimaryConcern(findings){
+    if(!findings || !findings.length) return "No major threat indicators detected.";
+    return findings[0];
+  }
+
+  function renderResult(result) {
+    const card = scanCard();
+    if (!card) return;
+
+    if (!result.ok) {
+      card.className = "scan-card";
+      card.innerHTML = "<p><strong>Scan error:</strong> " + (result.error || "Unknown error") + "</p>";
+      return;
+    }
+
+    card.className = "scan-card";
+
+    const riskLabel = riskLevelToLabel(result.riskLevel);
+    const badgeClass = riskLevelToBadgeClass(result.riskLevel);
+    const riskScore = result.riskScore;
+    const confidence = result.confidence || 0;
+    const threatType = result.threatType || "URL Analysis";
+
+    const domainRisk = result.categories?.domain ?? 0;
+    const protocolRisk = result.categories?.protocol ?? 0;
+    const pathRisk = result.categories?.path ?? 0;
+    const redirectRisk = result.categories?.redirect ?? 0;
+    const encodingRisk = result.categories?.encoding ?? 0;
+
+    const findings = result.findings || [];
+    const suggestions = result.suggestions || [];
+    const entropy = typeof result.entropy === "number" ? result.entropy.toFixed(2) : "n/a";
+
+    const encodedOriginal = escapeHtml(result.original || "");
+    const encodedHost = escapeHtml(result.hostname || "");
+    const encodedPath = escapeHtml(result.pathname || "");
+    const encodedSearch = escapeHtml(result.search || "");
+
+    const findingsHtml = findings.length
+      ? "<ul class=\"findings-list\">" +
+        findings.map((msg) => {
+          let sev = "low";
+          const lower = String(msg || "").toLowerCase();
+          if (lower.includes("double extension") || lower.includes("danger") || lower.includes("critical")) sev = "critical";
+          else if (lower.includes("brand") || lower.includes("punycode") || lower.includes("impersonation")) sev = "high";
+          else if (lower.includes("suspicious") || lower.includes("encoded") || lower.includes("redirect")) sev = "medium";
+          const sevClass = severityToClass(sev);
+          return "<li><span class=\"severity-chip " + sevClass + "\">" + sev.toUpperCase() + "</span>" + escapeHtml(msg) + "</li>";
+        }).join("") +
+        "</ul>"
+      : "<p>No detailed findings available for this URL.</p>";
+
+    const suggestionsHtml = suggestions.length
+      ? "<ul class=\"suggestions-list\">" + suggestions.map((msg) => "<li>" + escapeHtml(msg) + "</li>").join("") + "</ul>"
+      : "";
+
+    const techText =
+      "Original: " + encodedOriginal + "\n" +
+      "Protocol: " + escapeHtml(result.protocol || "") + "\n" +
+      "Hostname: " + encodedHost + "\n" +
+      "Path: " + encodedPath + "\n" +
+      "Query: " + encodedSearch + "\n" +
+      "TLD: " + escapeHtml(result.tld || "") + "\n" +
+      "Entropy: " + entropy + "\n" +
+      "Engine: " + escapeHtml((result && result.engineLabel) || "Proxuma Security Engine – Heuristic v14.1");
+
+    
+    const primaryConcern = extractPrimaryConcern(findings);
+    const actionText = actionLabel(result.riskLevel);
+
+    const actionBanner = 
+      "<div class='action-banner action-" + result.riskLevel + "'>" +
+      actionText +
+      "<div class='primary-concern'><strong>Primary Concern:</strong> " +
+      escapeHtml(primaryConcern) +
+      "</div></div>";
+
+    const html = actionBanner +
+    
+      "<div class=\"risk-badge " + badgeClass + "\">" + riskLabel + " · " + riskScore + "/100</div>" +
+      "<div class=\"heat-meter\">" +
+      "<div class=\"heat-bar-wrapper\"><div class=\"heat-bar-fill\" style=\"width:" + riskScore + "%\"></div></div>" +
+      "<div class=\"heat-meter-label\">Overall Risk Score</div>" +
+      "</div>" +
+      "<p><strong>Threat Type:</strong> " + escapeHtml(threatType) + "</p>" +
+      "<p><strong>Summary:</strong> " + escapeHtml(result.summary || "") + "</p>" +
+      "<div class=\"scan-meta\">" +
+        "<div class=\"scan-meta-block\"><strong>Confidence</strong><br>" + confidence + "%</div>" +
+        "<div class=\"scan-meta-block\"><strong>Domain Risk</strong><br>" + domainRisk + "/20</div>" +
+        "<div class=\"scan-meta-block\"><strong>Protocol Risk</strong><br>" + protocolRisk + "/20</div>" +
+        "<div class=\"scan-meta-block\"><strong>Path Risk</strong><br>" + pathRisk + "/20</div>" +
+        "<div class=\"scan-meta-block\"><strong>Redirect Risk</strong><br>" + redirectRisk + "/20</div>" +
+        "<div class=\"scan-meta-block\"><strong>Encoding Risk</strong><br>" + encodingRisk + "/20</div>" +
+      "</div>" +
+      "<h3>Findings</h3>" + findingsHtml +
+      (suggestionsHtml ? "<h3>Suggestions</h3>" + suggestionsHtml : "") +
+      "<div class=\"tech-toggle\" onclick=\"toggleTechDetails()\">Show technical details</div>" +
+      "<div id=\"techDetails\" class=\"tech-details\">" + techText + "</div>";
+
+    card.innerHTML = html;
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\\"/g, "&quot;")
+      .replace(/"/g, "&quot;");
+  }
+
+  window.toggleTechDetails = function toggleTechDetails() {
+    const el = document.getElementById("techDetails");
+    if (!el) return;
+    el.style.display = el.style.display === "block" ? "none" : "block";
+  };
+
+  function runScan() {
+    const inputEl = scanInput();
+    if (!inputEl) return;
+    const value = inputEl.value;
+    if (!window.ProxumaSecurity || typeof window.ProxumaSecurity.analyze !== "function") {
+      renderResult({ ok:false, error:"Security engine not loaded.", riskLevel:"safe", riskScore:0 });
+      return;
+    }
+    const result = window.ProxumaSecurity.analyze(value, lastScanSource);
+    renderResult(result);
+    const status = document.getElementById("statusText");
+    if (status) status.textContent = "Analysis complete. Results rendered locally.";
+  }
+  window.runScan = runScan;
+
+  function copyLastURL() {
+    const inputEl = document.getElementById("scanInput");
+    if (!inputEl || !inputEl.value) {
+      try { alert("No URL to copy."); } catch(e){}
+      return;
+    }
+    const text = inputEl.value;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(err=>console.warn("Clipboard failed:",err));
+    } else {
+      try { inputEl.select(); document.execCommand("copy"); }
+      catch(e){ console.warn("Fallback copy failed:",e); }
+    }
+  }
+  window.copyLastURL = copyLastURL;
+
+  // ==== QR SCANNER LOGIC (Browser-local, no network) ====
+  let qrScanning = false;
+  let qrStream = null;
+  let qrDetector = null;
+
+  function getQrElements() {
+    return {
+      panel: document.getElementById("qrPanel"),
+      toggleButton: document.getElementById("qrToggleButton"),
+      video: document.getElementById("qrVideo"),
+      canvas: document.getElementById("qrCanvas"),
+      overlay: document.getElementById("qrOverlay"),
+      status: document.getElementById("qrStatus"),
+      decoded: document.getElementById("qrDecoded"),
+      analyzeButton: document.getElementById("qrAnalyzeButton"),
+      startButton: document.getElementById("qrStartButton"),
+      stopButton: document.getElementById("qrStopButton")
+    };
+  }
+
+  function updateQrStatus(msg) {
+    const { status } = getQrElements();
+    if (status) status.textContent = msg;
+  }
+
+  function toggleQrPanel() {
+    const { panel, toggleButton } = getQrElements();
+    if (!panel) return;
+    const isHidden = panel.style.display === "none" || panel.style.display === "";
+    panel.style.display = isHidden ? "block" : "none";
+    if (toggleButton) toggleButton.textContent = isHidden ? "Hide QR scanner" : "Show QR scanner";
+    if (!isHidden) stopQrScan(false);
+  }
+
+  async function ensureBarcodeDetector() {
+    if ("BarcodeDetector" in window) {
+      qrDetector = qrDetector || new window.BarcodeDetector({ formats: ["qr_code"] });
+      return true;
+    }
+    updateQrStatus("QR scanning not supported in this browser. You can still upload an image.");
+    return false;
+  }
+
+  async function startQrScan() {
+    const { video, startButton, stopButton, overlay, decoded, analyzeButton } = getQrElements();
+    if (!video) return;
+    if (qrScanning) { updateQrStatus("Scanner already running."); return; }
+    const supported = await ensureBarcodeDetector();
+    if (!supported) return;
+
+    try {
+      qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      video.srcObject = qrStream;
+      qrScanning = true;
+      if (overlay) overlay.style.opacity = "1";
+      if (startButton) startButton.disabled = true;
+      if (stopButton) stopButton.disabled = false;
+      if (decoded) decoded.value = "";
+      if (analyzeButton) analyzeButton.disabled = true;
+      updateQrStatus("Camera active. Align a QR code in the frame.");
+      requestAnimationFrame(qrScanLoop);
+    } catch (err) {
+      console.error("QR camera error:", err);
+      updateQrStatus("Unable to access camera. Check permissions and try again.");
+    }
+  }
+
+  function stopQrScan(updateText = true) {
+    const { video, startButton, stopButton, overlay } = getQrElements();
+    qrScanning = false;
+    if (qrStream) {
+      qrStream.getTracks().forEach((t) => t.stop());
+      qrStream = null;
+    }
+    if (video) video.srcObject = null;
+    if (startButton) startButton.disabled = false;
+    if (stopButton) stopButton.disabled = true;
+    if (overlay) overlay.style.opacity = "0.4";
+    if (updateText) updateQrStatus("QR scanner idle.");
+  }
+
+  async function qrScanLoop() {
+    if (!qrScanning) return;
+    const { video, canvas, decoded, analyzeButton } = getQrElements();
+    if (!video || !canvas || !qrDetector) { qrScanning = false; return; }
+
+    const w = video.videoWidth;
+    const h = video.videoHeight;
+    if (!w || !h) { requestAnimationFrame(qrScanLoop); return; }
+
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, w, h);
+
+    try {
+      const bitmap = await createImageBitmap(canvas);
+      const codes = await qrDetector.detect(bitmap);
+      if (codes && codes.length > 0) {
+        const value = (codes[0].rawValue ?? "");
+        if (value) {
+          stopQrScan(false);
+          if (decoded) decoded.value = value;
+          if (analyzeButton) analyzeButton.disabled = false;
+          updateQrStatus("QR code decoded. Review the link, then analyze.");
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("QR detect error:", err);
+    }
+
+    if (qrScanning) requestAnimationFrame(qrScanLoop);
+  }
+
+  async function handleQrFile(files) {
+    if (!files || !files.length) return;
+    const file = files[0];
+    const { canvas, decoded, analyzeButton } = getQrElements();
+    if (!canvas) return;
+
+    const supported = await ensureBarcodeDetector();
+    if (!supported) return;
+
+    const img = new Image();
+    img.onload = async function () {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      try {
+        const bitmap = await createImageBitmap(canvas);
+        const codes = await qrDetector.detect(bitmap);
+        if (codes && codes.length > 0) {
+          const value = codes[0].rawValue || "";
+          if (decoded) decoded.value = value;
+          if (analyzeButton) analyzeButton.disabled = !value;
+          updateQrStatus(value ? "QR image decoded. Review the link, then analyze." : "No QR code detected in this image.");
+        } else {
+          updateQrStatus("No QR code detected in this image.");
+        }
+      } catch (err) {
+        console.error("QR image detect error:", err);
+        updateQrStatus("Could not read QR image.");
+      }
+    };
+    img.onerror = function () { updateQrStatus("Could not load the selected image."); };
+    img.src = URL.createObjectURL(file);
+  }
+
+  function analyzeDecoded() {
+    const { decoded } = getQrElements();
+    if (!decoded || !decoded.value) { updateQrStatus("No decoded URL to analyze yet."); return; }
+    const inputEl = scanInput();
+    if (inputEl) inputEl.value = decoded.value;
+    lastScanSource = "qr"; runScan(); lastScanSource = "manual";
+  }
+
+  window.toggleQrPanel = toggleQrPanel;
+  window.startQrScan = startQrScan;
+  window.stopQrScan = stopQrScan;
+  window.handleQrFile = handleQrFile;
+  window.analyzeDecoded = analyzeDecoded;
+
+
+
+  // ==== MAIN UI QR SUPPORT (html5-qrcode library path) ====
+  let mainQrScanner = null;
+  let mainQrRunning = false;
+
+  function hasMainQrDom() {
+    return !!document.getElementById("qrScannerWrap") && !!document.getElementById("qrReader");
+  }
+
+  async function startMainQrScanner() {
+    const wrap = document.getElementById("qrScannerWrap");
+    const button = document.getElementById("qrToggleButton");
+    const input = document.getElementById("scanInput");
+    const status = document.getElementById("statusText");
+    if (!wrap) return;
+    wrap.style.display = "block";
+    if (button) { button.textContent = "Hide QR Scanner"; button.setAttribute("aria-expanded", "true"); }
+    if (!window.Html5Qrcode) {
+      if (status) status.textContent = "QR library unavailable. Paste the link manually.";
+      return;
+    }
+    if (mainQrRunning) return;
+    try {
+      mainQrScanner = mainQrScanner || new Html5Qrcode("qrReader");
+      await mainQrScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+          if (input) input.value = decodedText;
+          if (status) status.textContent = "QR decoded. Analyze when ready.";
+          stopMainQrScanner(false);
+        }
+      );
+      mainQrRunning = true;
+      if (status) status.textContent = "Camera active. QR scanning stays local.";
+    } catch (err) {
+      console.warn("Main QR start failed:", err);
+      if (status) status.textContent = "Unable to start QR scanner. Check camera permission.";
+    }
+  }
+
+  async function stopMainQrScanner(hide = true) {
+    const wrap = document.getElementById("qrScannerWrap");
+    const button = document.getElementById("qrToggleButton");
+    const status = document.getElementById("statusText");
+    if (mainQrScanner && mainQrRunning) {
+      try { await mainQrScanner.stop(); } catch (e) { console.warn("Main QR stop failed:", e); }
+      try { mainQrScanner.clear(); } catch (e) {}
+    }
+    mainQrRunning = false;
+    if (hide && wrap) wrap.style.display = "none";
+    if (button) { button.textContent = "Show QR Scanner"; button.setAttribute("aria-expanded", "false"); }
+    if (status && hide) status.textContent = "QR scanner closed. Local inspection standing by.";
+  }
+
+  async function toggleMainQrPanel() {
+    const wrap = document.getElementById("qrScannerWrap");
+    if (!wrap) return;
+    const isHidden = wrap.style.display === "none" || wrap.style.display === "";
+    if (isHidden) await startMainQrScanner();
+    else await stopMainQrScanner(true);
+  }
+
+  function loadSampleThreat() {
+    const inputEl = scanInput();
+    if (inputEl) inputEl.value = "https://secure-login-paypal.ru/account-verify?redirect=aHR0cHM6Ly9ldmlsLmNvbQ==";
+    const status = document.getElementById("statusText");
+    if (status) status.textContent = "Sample loaded. Analyze when ready.";
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    initTheme();
+    showPage(document.querySelector(".page-section.active-page")?.id || "home");
+    document.querySelectorAll("[data-page]").forEach((btn) => {
+      btn.addEventListener("click", () => showPage(btn.getAttribute("data-page")));
+    });
+    const themeToggle = themeToggleEl();
+    if (themeToggle) themeToggle.addEventListener("change", toggleTheme);
+    const scanButton = document.getElementById("scanButton");
+    if (scanButton) scanButton.addEventListener("click", function(){ lastScanSource = "manual"; runScan(); });
+    const sampleButton = document.getElementById("sampleButton");
+    if (sampleButton) sampleButton.addEventListener("click", loadSampleThreat);
+    const copyButton = document.getElementById("copyCurrentButton");
+    if (copyButton) copyButton.addEventListener("click", copyLastURL);
+    const qrToggle = document.getElementById("qrToggleButton");
+    if (qrToggle && hasMainQrDom()) qrToggle.addEventListener("click", toggleMainQrPanel);
+    const inputEl = scanInput();
+    if (inputEl) {
+      inputEl.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { lastScanSource = "manual"; runScan(); lastScanSource = "manual"; }
+      });
+    }
+  });
+})();

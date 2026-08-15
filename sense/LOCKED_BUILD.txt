@@ -1,0 +1,7 @@
+QANTRAE SENSE — LOCKED BUILD
+Source: QANTRAE Sense Standalone v10 Final QC
+Status: FROZEN
+Index SHA-256: e21d56d11301fdeaad5be5748a86469051578f84352f3d3bbf63dec6aec4cf1f
+
+Do not redesign or alter this reference build.
+Future ecosystem work should use a copy and limit changes to integration wiring unless explicitly approved.

@@ -1,0 +1,74 @@
+{
+  "build": "QANTRAE Master Ecosystem 2026-08-15 RC5 Final QA Release Lock Candidate",
+  "release_status": "KNOWN-GOOD CANDIDATE",
+  "ecosystem": {
+    "status": "PASS",
+    "home": "index.html",
+    "about": "about/index.html",
+    "privacy": "privacy/index.html",
+    "transparency": "transparency/index.html",
+    "home_sha256": "38a6945ddf92bfbcf478b20969e770272e107aa6ce4c5f81cd5d6b0b9edd5481",
+    "about_sha256": "f809f3eba02f4f44644af49a4b14cda74ff6acc4dd4af1bae4c8102885d7852a",
+    "privacy_sha256": "377f5ce8ff0865878a78d83e211a84867ca95dc41f09394e22eea6dceb192432",
+    "transparency_sha256": "5b12723f89fbeeaf4d91cf4e771eb51f5bf8b3d3397d537765d94786484d6b0d",
+    "broken_local_references": "PASS",
+    "css_asset_references": "PASS",
+    "duplicate_ids": "PASS",
+    "javascript": "PASS",
+    "family_navigation": "PASS",
+    "adaptive_product_headers": "PASS",
+    "full_ui_color_inheritance": "PASS",
+    "favicon_identity": "PASS",
+    "visible_legacy_branding": "PASS"
+  },
+  "products": {
+    "lite": {
+      "file_count": 11,
+      "index_sha256": "e234f6848a2a97d936a110bc3b28f991172826338bfccb4aac2f6dc393210275",
+      "duplicate_ids": "PASS",
+      "javascript": "PASS",
+      "engine_logic": "FROZEN",
+      "favicon": "PASS"
+    },
+    "sense": {
+      "file_count": 4,
+      "index_sha256": "17a6382ed932dc09e296619d24883809219acc92eeed84481c7b5d821be7eec8",
+      "duplicate_ids": "PASS",
+      "javascript": "PASS",
+      "engine_logic": "FROZEN",
+      "favicon": "PASS"
+    },
+    "shield": {
+      "file_count": 4,
+      "index_sha256": "8d9d06e398fb889db761ea4f1c9b1837f9b9099b8a78b326d4318d537ccd4d55",
+      "duplicate_ids": "PASS",
+      "javascript": "PASS",
+      "engine_logic": "FROZEN",
+      "favicon": "PASS"
+    },
+    "it": {
+      "file_count": 11,
+      "index_sha256": "2bcd202cdadc023abf1c8d2c7cfc31652dc09b4304f77f390adbe06cd2737320",
+      "duplicate_ids": "PASS",
+      "javascript": "PASS",
+      "engine_logic": "FROZEN",
+      "favicon": "PASS"
+    }
+  },
+  "protection": {
+    "status": "PASS",
+    "intel_bridge_sha256": "9661911ce96cf4122bef3cf65d6911ed02988b7b0bfb6578ad7735558f4abba4",
+    "rdap_bridge_sha256": "79f1af6ed498eaa58202a6eba63ad93423101facd0338d5959e4186dad26d91d",
+    "product_engine_logic": "FROZEN \u2014 RC5 changes are final QA, camera lifecycle, accessibility, contrast, and 404 cleanup only"
+  },
+  "rc5_polish": {
+    "it_qr_shared_scanner": "PASS",
+    "it_camera_release_on_close": "PASS",
+    "it_camera_release_on_view_change": "PASS",
+    "it_camera_release_on_page_hide": "PASS",
+    "camera_privacy_note": "PASS",
+    "mobile_tap_targets": "PASS",
+    "focus_visibility": "PASS",
+    "compact_it_404": "PASS"
+  }
+}

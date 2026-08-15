@@ -1,0 +1,7 @@
+QANTRAE LITE — LOCKED BUILD
+Source: QANTRAE Lite Standalone v16 Full Width Single Frame
+Status: FROZEN
+Index SHA-256: 762938c43da4a6827a73844531d82348f7caaf2f17ae1a42ace4c23175ec2c13
+
+Do not redesign or alter this reference build.
+Future ecosystem work should use a copy and limit changes to integration wiring unless explicitly approved.
