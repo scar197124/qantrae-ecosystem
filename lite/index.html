@@ -906,7 +906,30 @@ body.q-lite .secondary-button,body.q-lite .sample-chip,body.q-lite .ghost-button
 body.q-lite input,body.q-lite textarea,body.q-lite select{border-color:rgba(182,255,0,.54)!important;box-shadow:0 0 0 1px rgba(182,255,0,.10) inset!important}
 
 \n/* RC5 final QA polish */\nbody.q-lite button:focus-visible,body.q-lite a:focus-visible,body.q-lite input:focus-visible{outline:2px solid #d7ff6a!important;outline-offset:2px!important}\nbody.q-lite button,body.q-lite a,body.q-lite input{touch-action:manipulation}\n@media(max-width:720px){body.q-lite button,body.q-lite .primary-button,body.q-lite .secondary-button,body.q-lite .ghost-button,body.q-lite .sample-chip{min-height:44px}}\n
+
+/* RC7 responsive compact family header */
+.q-shell{padding:6px 8px 0!important;}
+.q-shell-scroll{max-width:1180px!important;}
+.q-shell-frame{min-width:720px!important;border-radius:14px!important;}
+.q-shell-frame::before{inset:5px!important;border-radius:10px!important;}
+.q-hud img{width:100%!important;height:auto!important;}
+.q-hit::before{inset:7% 4%!important;border-radius:8px!important;}
+.q-hit.active::after,.q-hit.product-current::after,.q-existing-links .product-current::after{bottom:7%!important;}
+@media (max-width:760px){
+  .q-shell{padding:4px 4px 0!important;}
+  .q-shell-frame{min-width:720px!important;border-radius:11px!important;}
+  .q-shell-frame::before{inset:3px!important;border-radius:8px!important;}
+  .q-hit::before{inset:4% 2%!important;}
+}
+@media (orientation:landscape) and (max-height:600px){
+  .q-shell{padding:2px 4px 0!important;}
+  .q-shell-scroll{max-width:960px!important;}
+  .q-shell-frame{min-width:720px!important;border-radius:9px!important;border-width:1px!important;}
+  .q-shell-frame::before{inset:2px!important;border-width:1px!important;border-radius:6px!important;}
+  .q-hud::after{height:1px!important;}
+}
 </style>
+<link rel="stylesheet" href="../assets/qantrae-density.css">
 </head>
 <body class="theme-dark proxuma-lite q-lite">
 <header class="q-shell">

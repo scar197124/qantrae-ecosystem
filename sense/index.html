@@ -1762,9 +1762,32 @@ input{border-color:rgba(255,104,92,.46)!important;background:#090303!important;c
 input::placeholder{color:#ddb0ab!important;opacity:1!important}
 
 \n/* RC5 final QA polish */\nbutton:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff9b93!important;outline-offset:2px!important}\nbutton,a,input{touch-action:manipulation}\n@media(max-width:600px){button,.chip,.scanBtn,.nav button,.nav a{min-height:44px}}\n
+
+/* RC7 responsive compact family header */
+.q-shell{padding:6px 8px 0!important;}
+.q-shell-scroll{max-width:1180px!important;}
+.q-shell-frame{min-width:720px!important;border-radius:14px!important;}
+.q-shell-frame::before{inset:5px!important;border-radius:10px!important;}
+.q-hud img{width:100%!important;height:auto!important;}
+.q-hit::before{inset:7% 4%!important;border-radius:8px!important;}
+.q-hit.active::after,.q-hit.product-current::after,.q-existing-links .product-current::after{bottom:7%!important;}
+@media (max-width:760px){
+  .q-shell{padding:4px 4px 0!important;}
+  .q-shell-frame{min-width:720px!important;border-radius:11px!important;}
+  .q-shell-frame::before{inset:3px!important;border-radius:8px!important;}
+  .q-hit::before{inset:4% 2%!important;}
+}
+@media (orientation:landscape) and (max-height:600px){
+  .q-shell{padding:2px 4px 0!important;}
+  .q-shell-scroll{max-width:960px!important;}
+  .q-shell-frame{min-width:720px!important;border-radius:9px!important;border-width:1px!important;}
+  .q-shell-frame::before{inset:2px!important;border-width:1px!important;border-radius:6px!important;}
+  .q-hud::after{height:1px!important;}
+}
 </style>
+<link rel="stylesheet" href="../assets/qantrae-density.css">
 </head>
-<body>
+<body class="q-sense">
 <div class="app">
   <header class="q-shell">
   <div class="q-shell-scroll">
@@ -1990,7 +2013,8 @@ const knownBrands={
   facebook:['facebook.com'], instagram:['instagram.com']
 };
 const shorteners=['bit.ly','tinyurl.com','t.co','goo.gl','is.gd','cutt.ly','ow.ly','buff.ly','rebrand.ly','shorturl.at','rb.gy','bitly.ws'];
-let scanHistory=JSON.parse(localStorage.getItem('proxuma_sense_history_v2')||'[]');
+let scanHistory=[];
+try{scanHistory=JSON.parse(localStorage.getItem('proxuma_sense_history_v2')||'[]');if(!Array.isArray(scanHistory))scanHistory=[];}catch(e){scanHistory=[];}
 function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function showPage(id,el){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
@@ -2099,6 +2123,22 @@ function analyze(raw){
   if(clean.includes('xn--')) score+=add(flags,actions,'Punycode spoof indicator',25,'Treat punycode domains as suspicious unless you typed them yourself.',technical,'Punycode marker detected');
   if(/%[0-9a-f]{2}/i.test(clean)) score+=add(flags,actions,'Encoded URL characters',10,'Be careful with links that hide characters through encoding.',technical,'Encoded URL characters detected');
   if(clean.includes('@') && validUrl) score+=add(flags,actions,'User-info URL trick',22,'Avoid URLs using @ because they can hide the real destination.',technical,'@ symbol present in URL authority/path');
+
+  if(validUrl){
+    try{
+      const expandedUrl=new URL(/^https?:\/\//i.test(clean)?clean:'https://'+clean);
+      const percentCount=(clean.match(/%[0-9a-f]{2}/ig)||[]).length;
+      const pathDepth=expandedUrl.pathname.split('/').filter(Boolean).length;
+      const labels=expandedUrl.hostname.split('.').filter(Boolean);
+      if(clean.length>=240 && !officialHost) score+=add(flags,actions,'Very long URL structure',10,'Check the root domain before trusting a very long link.',technical,'URL length '+clean.length+' characters');
+      if(pathDepth>=7 && !officialHost) score+=add(flags,actions,'Deep path nesting',10,'Deep folders can bury phishing-kit or login paths.',technical,'Path depth '+pathDepth);
+      if(percentCount>=8 && !officialHost) score+=add(flags,actions,'Heavy encoding density',10,'Heavy encoding can conceal separators or destination details.',technical,'Percent-encoded bytes '+percentCount);
+      if(/%25(?:2f|3a|40|5c|2e|3f|3d)/i.test(clean) && !officialHost) score+=add(flags,actions,'Nested URL encoding',16,'Multi-layer encoding deserves stronger caution on an unfamiliar root.',technical,'Second-layer encoded separators detected');
+      if(labels.some(label=>/^\d{5,}$/.test(label)) && !officialHost) score+=add(flags,actions,'Numeric hostname label',10,'Unusually numeric hostname labels reduce human readability.',technical,'Long numeric host label detected');
+      const opaque=Array.from(expandedUrl.searchParams.values()).some(v=>String(v).length>=72 && ((String(v).match(/[a-z0-9._~+\/=\-]/ig)||[]).length>=String(v).length*.86));
+      if(opaque && !officialHost) score+=add(flags,actions,'Opaque query payload',8,'A long machine-like query value can conceal state or redirect information.',technical,'Opaque query value detected');
+    }catch(e){}
+  }
 
   const combined=officialHost ? path : (host+' '+path+' '+clean);
   const lureRules=[
@@ -2295,7 +2335,7 @@ function runScan(){
   document.getElementById('statConf').textContent= signalCount>=3?'High':signalCount>=1?'Moderate':'Low';
   document.getElementById('statSignals').textContent=signalCount;
   setRadarSignalState(r.status, signalCount);
-  if(!invalid){scanHistory.unshift({input:raw,status:r.status,score:r.score,time:new Date().toLocaleString()});scanHistory=scanHistory.slice(0,5);localStorage.setItem('proxuma_sense_history_v2',JSON.stringify(scanHistory));}
+  if(!invalid){scanHistory.unshift({input:raw,status:r.status,score:r.score,time:new Date().toLocaleString()});scanHistory=scanHistory.slice(0,5);try{localStorage.setItem('proxuma_sense_history_v2',JSON.stringify(scanHistory));}catch(e){/* scanning must not depend on storage availability */}}
   if(scanStatus) scanStatus.textContent='Scan complete · '+r.status+' · '+r.score+'/100';
   if(window.innerWidth<=760){
     const result=document.querySelector('.sense-analysis');
@@ -2344,7 +2384,7 @@ function setReadyState(){
 }
 
 function toggleExplain(){document.getElementById('expandedExplain').classList.toggle('hidden');}
-function clearHistory(){scanHistory=[];localStorage.removeItem('proxuma_sense_history_v2');alert('Local scan memory cleared.');}
+function clearHistory(){scanHistory=[];try{localStorage.removeItem('proxuma_sense_history_v2');}catch(e){}alert('Local scan memory cleared.');}
 function showHistory(){alert(scanHistory.length?scanHistory.map(h=>`${h.status} ${h.score}/100 - ${h.input}`).join('\n\n'):'No recent scans.');}
 setReadyState();
 </script>

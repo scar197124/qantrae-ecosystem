@@ -827,7 +827,30 @@ h1,h2,h3,.info-block h3,.posture h3,.score-number,.report-line b{color:#fff6e4!i
 .action-btn.danger{background:rgba(255,120,82,.12)!important;color:#ffc1a6!important}
 
 \n/* RC5 final QA polish */\nbutton:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ffe08a!important;outline-offset:2px!important}\nbutton,a,input{touch-action:manipulation}\n@media(max-width:760px){.shield-tab,.scan-btn,.action-btn{min-height:44px}}\n
+
+/* RC7 responsive compact family header */
+.q-shell{padding:6px 8px 0!important;}
+.q-shell-scroll{max-width:1180px!important;}
+.q-shell-frame{min-width:720px!important;border-radius:14px!important;}
+.q-shell-frame::before{inset:5px!important;border-radius:10px!important;}
+.q-hud img{width:100%!important;height:auto!important;}
+.q-hit::before{inset:7% 4%!important;border-radius:8px!important;}
+.q-hit.active::after,.q-hit.product-current::after,.q-existing-links .product-current::after{bottom:7%!important;}
+@media (max-width:760px){
+  .q-shell{padding:4px 4px 0!important;}
+  .q-shell-frame{min-width:720px!important;border-radius:11px!important;}
+  .q-shell-frame::before{inset:3px!important;border-radius:8px!important;}
+  .q-hit::before{inset:4% 2%!important;}
+}
+@media (orientation:landscape) and (max-height:600px){
+  .q-shell{padding:2px 4px 0!important;}
+  .q-shell-scroll{max-width:960px!important;}
+  .q-shell-frame{min-width:720px!important;border-radius:9px!important;border-width:1px!important;}
+  .q-shell-frame::before{inset:2px!important;border-width:1px!important;border-radius:6px!important;}
+  .q-hud::after{height:1px!important;}
+}
 </style>
+<link rel="stylesheet" href="../assets/qantrae-density.css">
 </head>
 <body class="q-shield">
 
@@ -1184,6 +1207,19 @@ function scoreUrl(raw, source="Link"){
   if(/%[0-9a-f]{2}/i.test(original)){
     security+=16;
     add("Encoded URL characters detected.");
+  }
+
+  if(parsed){
+    const percentCount=(original.match(/%[0-9a-f]{2}/ig)||[]).length;
+    const pathDepth=parsed.pathname.split('/').filter(Boolean).length;
+    const labels=host.split('.').filter(Boolean);
+    if(original.length>=260){security+=12;add("Very long URL structure detected.");}
+    if(pathDepth>=8){security+=14;add("Deep path nesting detected.");}
+    if(percentCount>=10){security+=14;add("Heavy URL encoding density detected.");}
+    if(/%25(?:2f|3a|40|5c|2e|3f|3d)/i.test(original)){security+=24;add("Nested URL encoding detected.");}
+    if(labels.some(label=>/^\d{5,}$/.test(label)) && !/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host)){domain+=16;add("Unusually numeric hostname label detected.");}
+    const opaque=Array.from(parsed.searchParams.values()).some(v=>String(v).length>=72 && ((String(v).match(/[a-z0-9._~+\/=\-]/ig)||[]).length>=String(v).length*.86));
+    if(opaque){redirect+=12;add("Opaque machine-like query payload detected.");}
   }
   const fileIntel=detectFileDeliveryRisk(lower);
   if(fileIntel && fileIntel.score){

@@ -2,8 +2,8 @@
   "use strict";
 
   const BUILD = {
-    version: "v3.54.0",
-    name: "Release Hardening",
+    version: "v3.55.0",
+    name: "URL Intelligence Expansion",
     privacy: "offline-first engine / local QR decoder path / no runtime CDN dependency",
   };
 
@@ -620,6 +620,58 @@
   }
 
 
+
+  function inspectUrlIntelligenceExpansion(target){
+    const raw = String((target && (target.href || target.raw)) || "");
+    const host = String((target && target.host) || "").toLowerCase();
+    const path = String((target && target.path) || "");
+    const findings = {
+      length: raw.length,
+      hostLabels: host ? host.split(".").filter(Boolean).length : 0,
+      pathDepth: path.split("/").filter(Boolean).length,
+      percentCount: (raw.match(/%[0-9a-f]{2}/ig) || []).length,
+      nestedEncoding: false,
+      nestedUrlValue: false,
+      numericHostLabel: false,
+      longOpaqueValue: false,
+      authBaitDensity: 0,
+      structuralFlags: []
+    };
+    let parsed = null;
+    try { parsed = new URL(target.href || target.raw); } catch(error) {}
+    const decodedOnce = safeDecodeForInspection(raw);
+    const decodedTwice = safeDecodeForInspection(decodedOnce);
+    findings.nestedEncoding = /%25(?:2f|3a|40|5c|2e|3f|3d)/i.test(raw) || (decodedTwice !== decodedOnce && /https?:\/\//i.test(decodedTwice));
+    findings.nestedUrlValue = /(?:https?%3a%2f%2f|https?:\/\/)/i.test(decodedOnce.replace(/&amp;/gi,"&"));
+    const labels = host.split(".").filter(Boolean);
+    findings.numericHostLabel = labels.some(function(label){
+      if (!label || /^\d+$/.test(label) === false) return false;
+      return label.length >= 5;
+    });
+    if (parsed) {
+      const params = Array.from(parsed.searchParams.entries());
+      findings.longOpaqueValue = params.some(function(pair){
+        const value = String(pair[1] || "");
+        if (value.length < 72) return false;
+        const alphaNum = (value.match(/[a-z0-9]/ig) || []).length;
+        const separators = (value.match(/[._~\-+/=]/g) || []).length;
+        return alphaNum + separators >= Math.floor(value.length * 0.86);
+      });
+      const bait = /(login|signin|verify|verification|secure|account|password|passcode|otp|mfa|2fa|wallet|payment|invoice|refund|unlock|recover|reset)/ig;
+      const joined = (parsed.pathname + " " + parsed.search).toLowerCase();
+      findings.authBaitDensity = (joined.match(bait) || []).length;
+    }
+    if (findings.length >= 240) findings.structuralFlags.push("very-long-url");
+    if (findings.hostLabels >= 6) findings.structuralFlags.push("deep-host-labels");
+    if (findings.pathDepth >= 7) findings.structuralFlags.push("deep-path");
+    if (findings.percentCount >= 8) findings.structuralFlags.push("heavy-percent-encoding");
+    if (findings.nestedEncoding) findings.structuralFlags.push("nested-encoding");
+    if (findings.nestedUrlValue) findings.structuralFlags.push("nested-destination");
+    if (findings.numericHostLabel) findings.structuralFlags.push("numeric-host-label");
+    if (findings.longOpaqueValue) findings.structuralFlags.push("opaque-query-value");
+    if (findings.authBaitDensity >= 4) findings.structuralFlags.push("dense-auth-bait");
+    return findings;
+  }
 
   function inspectEncodedRiskTokens(target){
     const raw = String((target && (target.sourceRaw || target.raw || target.display || target.href)) || "");
@@ -3064,7 +3116,47 @@
       }
     }
     if (/xn--/i.test(host) || unicodeLookalikes.test(host)) { score -= 28; addSignal(signals,"high","Unicode / punycode lookalike risk","The hostname contains characters that can imitate normal letters. Treat this as a strong warning.",28); }
-    if (target.href.length > 160) { score -= 10; addSignal(signals,"medium","Very long URL","Long URLs can bury the meaningful destination and tracking parameters.",10); }
+
+    const urlIntel = inspectUrlIntelligenceExpansion(target);
+    const trustedStructureRelief = !!(isTrusted || bankFamily);
+    if (urlIntel.length >= 320) {
+      const weight = trustedStructureRelief ? 4 : 12;
+      score -= weight;
+      addSignal(signals, trustedStructureRelief ? "low" : "medium", "Very long URL structure", "The URL is " + urlIntel.length + " characters long. Long links can bury the meaningful destination or carry opaque state. QANTRAE weighs this lightly on known roots and more strongly when the root is unfamiliar.", weight);
+    } else if (urlIntel.length >= 200) {
+      const weight = trustedStructureRelief ? 2 : 7;
+      score -= weight;
+      addSignal(signals, trustedStructureRelief ? "low" : "medium", "Long URL structure", "The URL is " + urlIntel.length + " characters long. Length alone is not malicious, but it can make the true destination harder to inspect.", weight);
+    }
+    if (urlIntel.numericHostLabel && !isIp(host) && !trustedStructureRelief) {
+      score -= 10;
+      addSignal(signals,"medium","Numeric host-label deception","A hostname label is unusually numeric without being a normal IP address. Numeric labels can be legitimate, but they can also make a destination harder to recognize at a glance.",10);
+    }
+    if (urlIntel.pathDepth >= 8 && !trustedStructureRelief) {
+      score -= 8;
+      addSignal(signals,"medium","Deep path nesting","The URL contains " + urlIntel.pathDepth + " path layers. Deep nesting can hide phishing-kit folders or push meaningful names out of view.",8);
+    }
+    if (urlIntel.percentCount >= 10 && !trustedStructureRelief) {
+      score -= 8;
+      addSignal(signals,"medium","Heavy URL encoding density","The URL contains " + urlIntel.percentCount + " percent-encoded byte sequences. Heavy encoding can conceal separators, destinations, or payload details.",8);
+    }
+    if (urlIntel.nestedEncoding && !trustedStructureRelief) {
+      score -= 16;
+      addSignal(signals,"medium","Nested URL encoding","QANTRAE found evidence that important URL separators may be hidden behind more than one decoding layer. Multi-layer encoding is a stronger concealment clue than ordinary percent encoding.",16);
+      timeline.push("v3.55 URL intelligence detected nested encoding before final scoring.");
+    }
+    if (urlIntel.nestedUrlValue && crossRootRedirects.length === 0 && !trustedStructureRelief) {
+      score -= 12;
+      addSignal(signals,"medium","Nested destination-like value","A URL-shaped destination appears inside the path or query even though it was not classified as a normal redirect parameter. Verify which domain ultimately controls the navigation.",12);
+    }
+    if (urlIntel.longOpaqueValue && !trustedStructureRelief) {
+      score -= 7;
+      addSignal(signals,"medium","Opaque query payload","A query value is unusually long and machine-like. This may be a normal token, but on an unfamiliar root it reduces human readability and can conceal state or redirect information.",7);
+    }
+    if (urlIntel.authBaitDensity >= 4 && !trustedStructureRelief && !(brands.length || credentialIntent.active)) {
+      score -= 10;
+      addSignal(signals,"medium","Dense account-access wording","Several login, verification, password, recovery, or payment terms are packed into the URL structure on an unfamiliar root. Dense account-access wording deserves verification even when no single token is decisive.",10);
+    }
 
     const randomizedRoot = findRandomizedRootPattern(root);
     if (randomizedRoot && !(isTrusted || bankFamily)) {
@@ -3214,6 +3306,23 @@
       addSignal(signals,"high","Brand outside verified root","Brand language appears in the target, but the root domain is not part of the known family: " + brandNames + ".",18);
     }
 
+    const urlStructureTitles = new Set([
+      "Very long URL structure","Long URL structure","Numeric host-label deception","Deep path nesting",
+      "Heavy URL encoding density","Nested URL encoding","Nested destination-like value","Opaque query payload",
+      "Dense account-access wording","Heavy subdomain stack","Extra subdomain layers","Heavy hyphen use",
+      "Encoded characters","Unusual network port","Higher-risk TLD"
+    ]);
+    const structuralMediums = signals.filter(function(signal){ return signal && signal.severity === "medium" && urlStructureTitles.has(signal.title); });
+    const hasHardStructuralStop = signals.some(function(signal){
+      return signal && signal.severity === "high" && /Unicode|punycode|IP address|Username-in-link|Brand outside|lookalike|Near-miss|Trusted root stuffed|double-extension|Executable/i.test(signal.title || "");
+    });
+    if (!trustedStructureRelief && !hasHardStructuralStop && structuralMediums.length >= 3) {
+      const weight = structuralMediums.length >= 5 ? 16 : 10;
+      score -= weight;
+      addSignal(signals, structuralMediums.length >= 5 ? "high" : "medium", "Compound URL deception pattern", "Several individually moderate URL-structure clues appear together: " + structuralMediums.slice(0,5).map(function(signal){ return signal.title; }).join(", ") + ". QANTRAE raises confidence in the warning because multiple independent concealment clues are present at the same time.", weight);
+      timeline.push("v3.55 combined independent URL-structure clues instead of judging each one in isolation.");
+    }
+
     if (isTrusted || bankFamily) {
       score += 8;
       addSignal(signals,"low","Known trusted root","The root domain matches a local trusted or known-family pattern. This helps, but it does not verify sender context or live page safety.",-8);
@@ -3244,7 +3353,8 @@
     technical.push("Username section present: " + (target.username ? "yes" : "no") + ".");
     technical.push("Custom port present: " + (target.port ? target.port : "no") + ".");
     technical.push("Build: " + BUILD.version + " " + BUILD.name + ".");
-    technical.push("v3.12.0 adds the offline 2025/2026 modern scam coverage pack: AI-family emergency, social DM, marketplace, student/school, and fake recovery/report portal lures. v3.11 job, v3.10 government, v3.09 delivery, v3.08 subscription, v3.07 reward, v3.06 money-movement, v3.05 mobility-payment, and v3.04 false-positive tuning remain preserved.");
+    technical.push("v3.55 URL Intelligence Expansion adds calibrated URL-length tiers, numeric host-label review, deep-path analysis, encoding-density review, nested encoding/destination detection, opaque-query review, dense account-access wording, and compound structural escalation. Existing v3.12 modern scam coverage and v3.04 false-positive tuning remain preserved.");
+    technical.push("v3.55 URL anatomy: " + urlIntel.length + " chars; " + urlIntel.hostLabels + " host labels; " + urlIntel.pathDepth + " path layers; " + urlIntel.percentCount + " encoded bytes; structural flags: " + (urlIntel.structuralFlags.join(", ") || "none") + ".");
 
     return finalize({target, score, signals, technical, trust, timeline});
   }

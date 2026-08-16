@@ -11,6 +11,9 @@ function analyzeURL(url) {
     hostname = parsed.hostname || "";
     protocol = parsed.protocol || "";
     pathname = parsed.pathname || "";
+    var port = parsed.port || "";
+    var username = parsed.username || "";
+    var search = parsed.search || "";
   } catch (e) {
     return {
       verdict: "UNKNOWN",
@@ -78,6 +81,38 @@ function analyzeURL(url) {
       level: "LOW",
       msg: "Encoded characters present in URL."
     });
+  }
+
+  const hostLabels = hostname.split(".").filter(Boolean);
+  const pathDepth = pathname.split("/").filter(Boolean).length;
+  const percentCount = (url.match(/%[0-9A-Fa-f]{2}/g) || []).length;
+  if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
+    domainRisk += 35;
+    findings.push({ level: "HIGH", msg: "Direct IP destination detected." });
+  }
+  if (/xn--/i.test(hostname)) {
+    domainRisk += 35;
+    findings.push({ level: "HIGH", msg: "Punycode hostname detected; verify the real domain carefully." });
+  }
+  if (username) {
+    domainRisk += 32;
+    findings.push({ level: "HIGH", msg: "Username-in-link structure detected before the real host." });
+  }
+  if (port && port !== "80" && port !== "443") {
+    protocolRisk += 10;
+    findings.push({ level: "MEDIUM", msg: "Unusual network port detected." });
+  }
+  if (hostLabels.length >= 5) {
+    domainRisk += 10;
+    findings.push({ level: "MEDIUM", msg: "Heavy subdomain stack can push the real root domain out of view." });
+  }
+  if (pathDepth >= 7) {
+    pathRisk += 8;
+    findings.push({ level: "MEDIUM", msg: "Deep path nesting detected." });
+  }
+  if (percentCount >= 8 || /%25(?:2f|3a|40|5c|2e)/i.test(url)) {
+    encodingRisk += 12;
+    findings.push({ level: "MEDIUM", msg: "Heavy or nested URL encoding detected." });
   }
 
   if ((pathname || "").length > 60 || url.length > 100) {
