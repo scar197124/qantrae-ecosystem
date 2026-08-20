@@ -1,16 +1,16 @@
 {
-  "build": "QANTRAE Master Ecosystem 2026-08-15 RC5 Final QA Release Lock Candidate",
-  "release_status": "KNOWN-GOOD CANDIDATE",
+  "build": "QANTRAE Master Ecosystem 2026-08-20 RC8 Public Surface & Release Integrity Candidate",
+  "release_status": "PUBLIC SURFACE / RELEASE INTEGRITY CANDIDATE \u2014 SCANNER / ENGINE / API LOGIC FROZEN",
   "ecosystem": {
     "status": "PASS",
     "home": "index.html",
     "about": "about/index.html",
     "privacy": "privacy/index.html",
     "transparency": "transparency/index.html",
-    "home_sha256": "38a6945ddf92bfbcf478b20969e770272e107aa6ce4c5f81cd5d6b0b9edd5481",
-    "about_sha256": "f809f3eba02f4f44644af49a4b14cda74ff6acc4dd4af1bae4c8102885d7852a",
-    "privacy_sha256": "377f5ce8ff0865878a78d83e211a84867ca95dc41f09394e22eea6dceb192432",
-    "transparency_sha256": "5b12723f89fbeeaf4d91cf4e771eb51f5bf8b3d3397d537765d94786484d6b0d",
+    "home_sha256": "3de440c57c8b52016100ad5e0e4039776392c32acab5088fd9f553e930f7312a",
+    "about_sha256": "4d825a54759903be05373e762964bb99f413906552cbb5db46784b9763958588",
+    "privacy_sha256": "0482c7c64b3558507680a89d0c030e7608dadf788424d510e3cb368b6bc21a2e",
+    "transparency_sha256": "90667aad1600d3da55bec8b16a646e777810cdf2f75d3dcc0190c170fe2c021a",
     "broken_local_references": "PASS",
     "css_asset_references": "PASS",
     "duplicate_ids": "PASS",
@@ -24,7 +24,7 @@
   "products": {
     "lite": {
       "file_count": 11,
-      "index_sha256": "e234f6848a2a97d936a110bc3b28f991172826338bfccb4aac2f6dc393210275",
+      "index_sha256": "bd97ea8bbd32492448af5ffad08401e2a3a60571a2c777fd455dce35161d078f",
       "duplicate_ids": "PASS",
       "javascript": "PASS",
       "engine_logic": "FROZEN",
@@ -32,7 +32,7 @@
     },
     "sense": {
       "file_count": 4,
-      "index_sha256": "17a6382ed932dc09e296619d24883809219acc92eeed84481c7b5d821be7eec8",
+      "index_sha256": "0d9ba0bf9aacbed520da31add8486a3bd7c9d7deb03110d4fbafed1f2d7be3d4",
       "duplicate_ids": "PASS",
       "javascript": "PASS",
       "engine_logic": "FROZEN",
@@ -40,7 +40,7 @@
     },
     "shield": {
       "file_count": 4,
-      "index_sha256": "8d9d06e398fb889db761ea4f1c9b1837f9b9099b8a78b326d4318d537ccd4d55",
+      "index_sha256": "bce85cd24da4e18f81cb214fd246accabaad359bd29565f755583398e55f1816",
       "duplicate_ids": "PASS",
       "javascript": "PASS",
       "engine_logic": "FROZEN",
@@ -48,7 +48,7 @@
     },
     "it": {
       "file_count": 11,
-      "index_sha256": "2bcd202cdadc023abf1c8d2c7cfc31652dc09b4304f77f390adbe06cd2737320",
+      "index_sha256": "91f4cd7db11f40f0cc8ea7e17cf4ab21a1bac9081aea35139f1b72c3898a647c",
       "duplicate_ids": "PASS",
       "javascript": "PASS",
       "engine_logic": "FROZEN",
@@ -70,5 +70,40 @@
     "mobile_tap_targets": "PASS",
     "focus_visibility": "PASS",
     "compact_it_404": "PASS"
+  },
+  "rc6_edge_hardening": {
+    "product_html_css_js_unchanged": "PASS",
+    "scanner_and_engine_logic_unchanged": "PASS",
+    "navigation_wiring_unchanged": "PASS",
+    "dns_prefetch_disabled": "PASS",
+    "static_cross_origin_resource_policy": "same-origin",
+    "origin_agent_cluster": "PASS",
+    "api_cross_origin_resource_policy": "cross-origin (CORS still enforced in handlers)",
+    "api_csp": "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+    "vercel_json_sha256": "f476595622a6d9e6e8427056f96b5cfa6d1595de71b3468e8831bb063a77cc81"
+  },
+  "rc7_public_release_polish": {
+    "public_product_titles": "PASS",
+    "product_meta_descriptions": "PASS",
+    "theme_color_and_color_scheme": "PASS",
+    "keyboard_focus_visibility": "PASS",
+    "reduced_motion_support": "PASS",
+    "ecosystem_aria_current": "PASS",
+    "it_404_noindex": "PASS",
+    "scanner_and_engine_logic": "FROZEN",
+    "rc6_edge_headers": "PRESERVED"
+  },
+  "rc8_public_surface_release_integrity": {
+    "robots_txt": "PASS",
+    "sitemap_xml": "PASS",
+    "root_404": "PASS",
+    "release_notes": "PASS",
+    "checksums_sha256": "PASS",
+    "internal_inline_checks_removed": "PASS",
+    "scanner_and_engine_logic": "FROZEN",
+    "api_handler_logic": "FROZEN",
+    "navigation_wiring": "FROZEN",
+    "rc6_edge_headers": "PRESERVED",
+    "rc7_public_polish": "PRESERVED"
   }
 }

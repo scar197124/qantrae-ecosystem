@@ -490,3 +490,8 @@ body.q-info-page > .page .content-hero > p:not(.eyebrow){
 body.q-info-page > .page .content-hero .eyebrow{max-width:900px}
 body.q-info-page > .page .content-hero h1{max-width:920px}
 body.q-info-page > .page .content-hero > p:not(.eyebrow){max-width:820px}
+
+
+/* RC7 release polish: visible keyboard focus and reduced-motion support */
+.button:focus-visible,.product-card:focus-visible,.q-hit:focus-visible,.footer a:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

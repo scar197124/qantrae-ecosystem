@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>QANTRAE Sense — Standalone v10 Final QC</title><link rel="icon" href="./assets/favicon.ico">
+<title>QANTRAE Sense — Interpret Suspicious Signals</title><meta name="description" content="QANTRAE Sense interprets visible link and QR signals to make suspicious patterns easier to understand."><link rel="icon" href="./assets/favicon.ico">
 <style>
 :root{
   --neon:#7CFF00;--neon-hot:#B6FF00;--bg:#030503;--panel:#060806;--panel2:#090d09;--text:#f3f6f3;--soft:#a8b5a8;
@@ -1784,6 +1784,10 @@ input::placeholder{color:#ddb0ab!important;opacity:1!important}
   .q-shell-frame::before{inset:2px!important;border-width:1px!important;border-radius:6px!important;}
   .q-hud::after{height:1px!important;}
 }
+
+/* RC7 release polish: keyboard clarity + motion preference */
+:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 <link rel="stylesheet" href="../assets/qantrae-density.css">
 </head>

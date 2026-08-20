@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#030603">
-<title>QANTRAE Lite — Full Width Single Frame v16</title>
-<meta name="description" content="QANTRAE Lite standalone private link scanner with local Scanner, About Lite, Privacy, and Transparency pages.">
+<title>QANTRAE Lite — Quick Security Check</title>
+<meta name="description" content="QANTRAE Lite provides a fast, local-first link and QR security check for suspicious digital moments.">
 <link rel="icon" href="./assets/favicon.ico">
 <link rel="stylesheet" href="./shared/proxuma.theme.core.css">
 <link rel="stylesheet" href="./shared/style.css">
@@ -928,6 +928,10 @@ body.q-lite input,body.q-lite textarea,body.q-lite select{border-color:rgba(182,
   .q-shell-frame::before{inset:2px!important;border-width:1px!important;border-radius:6px!important;}
   .q-hud::after{height:1px!important;}
 }
+
+/* RC7 release polish: keyboard clarity + motion preference */
+:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 <link rel="stylesheet" href="../assets/qantrae-density.css">
 </head>

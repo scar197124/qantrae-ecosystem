@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QANTRAE IT — v9 Modal Layer Fix</title><link rel="icon" href="./assets/favicon.ico">
+<meta name="theme-color" content="#33d7ff">
+<meta name="color-scheme" content="dark light">
+<title>QANTRAE IT — Investigation Layer</title><meta name="description" content="QANTRAE IT is the investigation layer for richer technical context, supporting evidence, and structured security analysis."><link rel="icon" href="./assets/favicon.ico">
 <style>
 :root{--bg:#06101c;--shell:#0a1728;--panel:#0d1d31;--panel2:#102640;--panel3:#081727;--line:#58dfff;--line2:#296b94;--text:#f7fbff;--muted:#b8c9da;--blue:#2088ff;--cyan:#33d7ff;--green:#62e59b;--purple:#b07aff;--red:#ff6675;--orange:#ffbd59;--shadow:0 22px 70px rgba(0,0,0,.34)}
 html[data-theme="light"]{--bg:#edf5fb;--shell:#fff;--panel:#f7fbff;--panel2:#eef7ff;--panel3:#fff;--line:#1679b7;--line2:#9ccce7;--text:#0a1726;--muted:#425a70;--shadow:0 18px 50px rgba(34,78,110,.16)}
@@ -1048,6 +1050,10 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #8df6
   .q-shell-frame::before{inset:2px!important;border-width:1px!important;border-radius:6px!important;}
   .q-hud::after{height:1px!important;}
 }
+
+/* RC7 release polish: keyboard clarity + motion preference */
+:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 <script src="./shared/html5-qrcode.local.js"></script>
 <link rel="stylesheet" href="../assets/qantrae-density.css">

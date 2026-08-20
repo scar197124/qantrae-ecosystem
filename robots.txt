@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /it/api/
+
+Sitemap: https://qantrae-ecosystem.vercel.app/sitemap.xml

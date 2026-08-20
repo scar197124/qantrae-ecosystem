@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QANTRAE Shield — Protection Layer v10 Final Rhythm</title>
-<meta name="description" content="QANTRAE Shield local-first link and QR protection layer.">
+<meta name="theme-color" content="#ffad22">
+<meta name="color-scheme" content="dark">
+<title>QANTRAE Shield — Deeper Protection Layer</title>
+<meta name="description" content="QANTRAE Shield provides a deeper local-first protection layer for link and QR inspection and decision support.">
 <link rel="icon" href="./assets/favicon.ico">
 <style>
 :root{
@@ -849,6 +851,10 @@ h1,h2,h3,.info-block h3,.posture h3,.score-number,.report-line b{color:#fff6e4!i
   .q-shell-frame::before{inset:2px!important;border-width:1px!important;border-radius:6px!important;}
   .q-hud::after{height:1px!important;}
 }
+
+/* RC7 release polish: keyboard clarity + motion preference */
+:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 <link rel="stylesheet" href="../assets/qantrae-density.css">
 </head>
