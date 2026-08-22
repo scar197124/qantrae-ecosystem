@@ -289,12 +289,23 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'GET') {
     if (!limit(req, res, 'health', 30)) return;
+    const configuredProviders = Number(Boolean(vtKey)) + Number(Boolean(wrKey));
     return res.status(200).json({
       ok: true,
       service: 'qantrae-intel-bridge',
       resolver: true,
       protected: true,
       providers: { virustotal: !!vtKey, webrisk: !!wrKey },
+      providerStates: {
+        rdap: 'available_without_key',
+        virustotal: vtKey ? 'configured' : 'key_not_configured',
+        webrisk: wrKey ? 'configured' : 'key_not_configured'
+      },
+      coverage: {
+        level: configuredProviders === 2 ? 'full-capability' : 'partial-capability',
+        configuredReputationProviders: configuredProviders,
+        totalReputationProviders: 2
+      },
       checkedAt: new Date().toISOString()
     });
   }

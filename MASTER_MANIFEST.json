@@ -1,6 +1,6 @@
 {
-  "build": "QANTRAE Master Ecosystem 2026-08-20 RC8 Public Surface & Release Integrity Candidate",
-  "release_status": "PUBLIC SURFACE / RELEASE INTEGRITY CANDIDATE \u2014 SCANNER / ENGINE / API LOGIC FROZEN",
+  "build": "QANTRAE RC11 Engine & API Coverage Hardening Local Candidate",
+  "release_status": "FINAL LOCAL CANDIDATE \u2014 NOT PUBLISHED",
   "ecosystem": {
     "status": "PASS",
     "home": "index.html",
@@ -32,10 +32,10 @@
     },
     "sense": {
       "file_count": 4,
-      "index_sha256": "0d9ba0bf9aacbed520da31add8486a3bd7c9d7deb03110d4fbafed1f2d7be3d4",
+      "index_sha256": "4ca42098ff67d62b0978ce7364f87db8e7435509a366b42ec87a60e8a2daed0d",
       "duplicate_ids": "PASS",
       "javascript": "PASS",
-      "engine_logic": "FROZEN",
+      "engine_logic": "UPGRADED \u2014 RC11 PROTOCOL / IPV6 / BRAND / RENTAL-PAYMENT HARDENING",
       "favicon": "PASS"
     },
     "shield": {
@@ -48,18 +48,18 @@
     },
     "it": {
       "file_count": 11,
-      "index_sha256": "91f4cd7db11f40f0cc8ea7e17cf4ab21a1bac9081aea35139f1b72c3898a647c",
+      "index_sha256": "ebf570a91d9ba92881d873df4d0a3f731aaa47c1f6bb7469d2d9a6b1f69d46dc",
       "duplicate_ids": "PASS",
       "javascript": "PASS",
-      "engine_logic": "FROZEN",
+      "engine_logic": "PRESERVED \u2014 API COVERAGE UI AND SELF-TEST ADDED",
       "favicon": "PASS"
     }
   },
   "protection": {
     "status": "PASS",
-    "intel_bridge_sha256": "9661911ce96cf4122bef3cf65d6911ed02988b7b0bfb6578ad7735558f4abba4",
-    "rdap_bridge_sha256": "79f1af6ed498eaa58202a6eba63ad93423101facd0338d5959e4186dad26d91d",
-    "product_engine_logic": "FROZEN \u2014 RC5 changes are final QA, camera lifecycle, accessibility, contrast, and 404 cleanup only"
+    "intel_bridge_sha256": "8f71cace33b2d1bcf8284b6d4a6ac86355c76b9449a5eb264a4c536626dbd2fb",
+    "rdap_bridge_sha256": "f1606dd673593e48479c3f4391ba65b056de93c9c194203814e568a92c61ae5d",
+    "product_engine_logic": "SENSE RC11 HARDENED; IT API COVERAGE UI ADDED; LITE / SHIELD ENGINES PRESERVED"
   },
   "rc5_polish": {
     "it_qr_shared_scanner": "PASS",
@@ -105,5 +105,55 @@
     "navigation_wiring": "FROZEN",
     "rc6_edge_headers": "PRESERVED",
     "rc7_public_polish": "PRESERVED"
+  },
+  "rc9_brand_identity_hardening": {
+    "test_status": "PASS",
+    "publication_status": "NOT PUBLISHED",
+    "verified_canadian_banks": ["RBC Royal Bank", "Scotiabank", "TD Bank", "BMO", "CIBC", "National Bank of Canada"],
+    "exact_domain_boundary_matching": "PASS",
+    "legitimate_subdomain_handling": "PASS",
+    "suffix_trap_detection": "PASS",
+    "hyphen_lookalike_detection": "PASS",
+    "userinfo_url_trick_detection": "PASS",
+    "local_only": "PASS",
+    "credential_collection": "NONE",
+    "network_calls_added": "NONE",
+    "navigation_wiring": "PRESERVED",
+    "other_product_engines": "PRESERVED"
+  },
+  "rc10_identity_evidence_safe_route": {
+    "test_status": "PASS",
+    "publication_status": "NOT PUBLISHED",
+    "claimed_identity_display": "PASS",
+    "actual_hostname_display": "PASS",
+    "verified_boundary_display": "PASS",
+    "identity_decision_display": "PASS",
+    "safe_route_registry_controlled": "PASS",
+    "safe_route_https_only": "PASS",
+    "safe_route_user_initiated": "PASS",
+    "safe_route_target_isolation": "noopener noreferrer",
+    "responsive_layout": "PASS",
+    "local_scan_privacy": "PRESERVED",
+    "navigation_wiring": "PRESERVED",
+    "other_product_engines": "PRESERVED"
+  },
+  "rc11_engine_api_coverage_hardening": {
+    "test_status": "PASS",
+    "publication_status": "NOT PUBLISHED",
+    "engine_scenarios": "46/46 PASS",
+    "http_caution_floor": "PASS",
+    "unsupported_scheme_rejection": "PASS",
+    "direct_ipv6_detection": "PASS",
+    "brand_separator_normalization": "PASS",
+    "joined_bank_aliases": "PASS",
+    "rental_payment_lure": "PASS",
+    "api_connection_self_test": "PASS",
+    "api_provider_state_clarity": "PASS",
+    "rdap_without_key": "PASS",
+    "missing_provider_key_disclosure": "PASS",
+    "partial_full_coverage_label": "PASS",
+    "offline_verdict_independence": "PRESERVED",
+    "consent_first_network_calls": "PRESERVED",
+    "navigation_wiring": "PRESERVED"
   }
 }

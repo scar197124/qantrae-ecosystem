@@ -1,7 +1,7 @@
-QANTRAE SENSE — LOCKED BUILD
-Source: QANTRAE Sense Standalone v10 Final QC
-Status: FROZEN
-Index SHA-256: e21d56d11301fdeaad5be5748a86469051578f84352f3d3bbf63dec6aec4cf1f
+QANTRAE SENSE — RC11 LOCAL CANDIDATE
+Source: RC10 Identity Evidence & Safe Route
+Status: HARDENED — NOT PUBLISHED
 
-Do not redesign or alter this reference build.
-Future ecosystem work should use a copy and limit changes to integration wiring unless explicitly approved.
+Approved RC11 changes are limited to protocol handling, IPv6 detection,
+brand-claim normalization, rental-payment warnings, API coverage clarity,
+and their regression tests. Navigation and unrelated product engines remain preserved.

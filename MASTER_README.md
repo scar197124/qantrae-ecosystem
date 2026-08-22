@@ -39,6 +39,22 @@ Polish applied:
 
 Purpose: make the public-facing build read like a release rather than an internal QA artifact while keeping the functional surface stable.
 
+## Brand identity hardening candidate — local test only
+
+This test candidate upgrades the Sense identity engine with exact domain-boundary verification and protected-brand mismatch detection. The first curated Canadian bank pack covers RBC, Scotiabank, TD, BMO, CIBC, and National Bank of Canada.
+
+It does not publish automatically, contact scanned pages, or change navigation/scanner wiring. Test before any production promotion.
+
+## RC10 Identity Evidence Panel — final local candidate
+
+RC10 turns the registry verdict into a compact, readable evidence panel. Sense now shows the claimed identity, actual hostname, verified domain boundary, and decision. When a protected brand is claimed outside its verified boundary, Sense offers an explicit safe route to the registry's official website. The route opens only when the user chooses it; scans remain local.
+
+## RC11 Engine & API Coverage Hardening — local candidate
+
+RC11 closes the diagnostic gaps found before publication. Sense now rejects unsupported URL schemes, detects direct IPv6 destinations, applies a caution floor to unsecured HTTP, recognizes common separated and joined bank-name variants, and identifies housing language combined with advance-payment requests.
+
+QANTRAE IT now includes a user-triggered connection test and explicit provider states. It distinguishes a connected bridge, working keyless RDAP, missing VirusTotal or Google Web Risk keys, timeouts, and partial versus full coverage. Online evidence remains optional and never silently changes the offline verdict.
+
 
 ## RC8 public-surface & release-integrity pass — 2026-08-20
 

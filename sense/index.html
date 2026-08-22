@@ -1788,6 +1788,24 @@ input::placeholder{color:#ddb0ab!important;opacity:1!important}
 /* RC7 release polish: keyboard clarity + motion preference */
 :focus-visible{outline:2px solid currentColor;outline-offset:3px}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* RC10 identity evidence panel */
+.brand-evidence{margin:14px 0 0;border:1px solid rgba(255,104,92,.50);border-radius:13px;padding:13px;background:linear-gradient(180deg,rgba(18,6,6,.96),rgba(8,4,4,.94));box-shadow:0 0 20px rgba(255,90,80,.10)}
+.brand-evidence-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.brand-evidence-head h4{margin:0;color:#fff0ed;font-size:.92rem;letter-spacing:.08em;text-transform:uppercase}
+.brand-evidence-state{border:1px solid rgba(255,155,147,.56);border-radius:999px;padding:5px 9px;color:#ffd6d2;font-size:.72rem;font-weight:900;letter-spacing:.06em;white-space:nowrap}
+.brand-evidence-grid{display:grid;grid-template-columns:1.05fr 1.25fr 1.15fr 1.15fr;gap:8px}
+.brand-evidence-item{min-width:0;border:1px solid rgba(255,104,92,.25);border-radius:10px;padding:9px;background:rgba(4,3,3,.72)}
+.brand-evidence-item span{display:block;color:#dba9a4;font-size:.69rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.brand-evidence-item strong{display:block;color:#fff5f3;font-size:.84rem;line-height:1.35;overflow-wrap:anywhere}
+.brand-evidence.brand-verified{border-color:rgba(94,255,130,.58);box-shadow:0 0 20px rgba(94,255,130,.10)}
+.brand-evidence.brand-verified .brand-evidence-state{border-color:rgba(94,255,130,.66);color:#a8ffbb}
+.brand-evidence.brand-mismatch{border-color:rgba(255,90,80,.88);box-shadow:0 0 25px rgba(255,59,47,.18)}
+.brand-evidence.brand-mismatch .brand-evidence-state{border-color:#ff5a50;color:#ffb4ae;background:rgba(255,59,47,.10)}
+.brand-safe-route{display:inline-flex;align-items:center;justify-content:center;margin-top:11px;min-height:42px;border:1px solid rgba(94,255,130,.72);border-radius:10px;padding:9px 14px;color:#b9ffc8;background:rgba(20,88,38,.18);font-size:.78rem;font-weight:900;letter-spacing:.05em;text-decoration:none;box-shadow:0 0 16px rgba(94,255,130,.10)}
+.brand-safe-route:hover,.brand-safe-route:focus-visible{background:rgba(36,130,59,.26);box-shadow:0 0 20px rgba(94,255,130,.18)}
+@media(max-width:760px){.brand-evidence-grid{grid-template-columns:1fr 1fr}.brand-evidence-head{align-items:flex-start}.brand-safe-route{width:100%}}
+@media(max-width:430px){.brand-evidence-grid{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="../assets/qantrae-density.css">
 </head>
@@ -1835,6 +1853,7 @@ input::placeholder{color:#ddb0ab!important;opacity:1!important}
       </div>
       <div class="samples"><span>Try a sample:</span>
         <button class="chip" type="button" data-sense-sample="https://www.rbcroyalbank.com">Safe Link</button>
+        <button class="chip" type="button" data-sense-sample="https://rbc.com.security-check.example/login">RBC Copy</button>
         <button class="chip" type="button" data-sense-sample="https://secure-update-account.com/login-help">Suspicious Login</button>
         <button class="chip" type="button" data-sense-sample="https://bit.ly/free-prize-claim">Short URL</button>
         <button class="chip" type="button" data-sense-sample="http://185.22.91.14/update-login">IP Attack</button>
@@ -1873,6 +1892,17 @@ input::placeholder{color:#ddb0ab!important;opacity:1!important}
           </div>
         </div>
 
+        <section id="brandEvidencePanel" class="brand-evidence brand-ready" aria-live="polite" aria-label="Brand identity evidence">
+          <div class="brand-evidence-head"><h4>Verified Brand Evidence</h4><span id="brandEvidenceState" class="brand-evidence-state">AWAITING SCAN</span></div>
+          <div class="brand-evidence-grid">
+            <div class="brand-evidence-item"><span>Claimed Identity</span><strong id="brandClaimedIdentity">Waiting for scan</strong></div>
+            <div class="brand-evidence-item"><span>Actual Host</span><strong id="brandActualHost">—</strong></div>
+            <div class="brand-evidence-item"><span>Verified Boundary</span><strong id="brandVerifiedBoundary">—</strong></div>
+            <div class="brand-evidence-item"><span>Decision</span><strong id="brandEvidenceDecision">Inspect first</strong></div>
+          </div>
+          <a id="brandSafeRoute" class="brand-safe-route hidden" href="#" target="_blank" rel="noopener noreferrer">OPEN VERIFIED WEBSITE</a>
+        </section>
+
         <div class="sense-quick-grid">
           <div class="sense-quick-item"><span>Threat Level</span><strong id="statLevel" class="bad">High</strong></div>
           <div class="sense-quick-item"><span>Confidence</span><strong id="statConf">High</strong></div>
@@ -1881,7 +1911,7 @@ input::placeholder{color:#ddb0ab!important;opacity:1!important}
         </div>
 
         <div class="riskBox"><span id="whyRisky">Why it’s risky: This link uses brand impersonation, urgency language, and multiple lure keywords to trick you into thinking it’s legitimate.</span><button class="explainBtn" onclick="toggleExplain()">SEE EXPLANATION ›</button></div>
-        <p id="expandedExplain" class="hidden" style="line-height:1.6;color:#ddd">Sense checks visible link behavior locally: lure words, suspicious structure, direct IPs, shorteners, risky extensions, and brand impersonation patterns. No scan data leaves this device.</p>
+        <p id="expandedExplain" class="hidden" style="line-height:1.6;color:#ddd">Sense checks visible link behavior locally: exact verified domain boundaries, protected-brand mismatches, lure words, suspicious structure, direct IPs, shorteners, and risky extensions. A registry match is supporting evidence, not a guarantee. No scan data leaves this device.</p>
       </div>
 
       <div class="sense-analysis-details">
@@ -2011,11 +2041,48 @@ input::placeholder{color:#ddb0ab!important;opacity:1!important}
 </div>
 <footer class="bottom"><div>🛡️ All scans are performed locally on your device. Your data never leaves your device.</div><div><button onclick="clearHistory()">🗑 Clear Scan Memory</button> <button onclick="showHistory()">View Recent Scans⌄</button></div></footer>
 <script>
-const knownBrands={
-  paypal:['paypal.com','paypal.ca'], apple:['apple.com'], amazon:['amazon.com','amazon.ca'], google:['google.com'],
-  microsoft:['microsoft.com','live.com','office.com'], rbc:['rbcroyalbank.com','rbc.com'], netflix:['netflix.com'],
-  facebook:['facebook.com'], instagram:['instagram.com']
+/*
+  QANTRAE Verified Brand Registry — local, evidence-first identity boundaries.
+  A listed domain authorizes that exact hostname and its dot-delimited subdomains.
+  It never authorizes look-alike prefixes, path text, user-info, or suffix tricks.
+  Registry entries are intentionally curated; absence is not evidence of fraud.
+*/
+const verifiedBrandRegistry={
+  rbc:{label:'RBC Royal Bank',category:'Canadian bank',domains:['rbc.com','rbcroyalbank.com','royalbank.com','rbcbank.com'],claims:['rbc','royal bank','royalbank'],safeUrl:'https://www.rbcroyalbank.com/'},
+  scotiabank:{label:'Scotiabank',category:'Canadian bank',domains:['scotiabank.com'],claims:['scotiabank','scotia bank','scotiaonline','scotia online'],safeUrl:'https://www.scotiabank.com/ca/en/personal.html'},
+  td:{label:'TD Bank',category:'Canadian bank',domains:['td.com','tdbank.com'],claims:['td bank','tdbank','td canada trust','easyweb'],safeUrl:'https://www.td.com/ca/en/personal-banking'},
+  bmo:{label:'BMO',category:'Canadian bank',domains:['bmo.com'],claims:['bmo','bank of montreal'],safeUrl:'https://www.bmo.com/en-ca/main/personal/'},
+  cibc:{label:'CIBC',category:'Canadian bank',domains:['cibc.com'],claims:['cibc','canadian imperial bank'],safeUrl:'https://www.cibc.com/en/personal-banking.html'},
+  nationalbank:{label:'National Bank of Canada',category:'Canadian bank',domains:['nbc.ca'],claims:['national bank','nationalbank','banque nationale'],safeUrl:'https://www.nbc.ca/'},
+  paypal:{label:'PayPal',category:'Payment service',domains:['paypal.com','paypal.ca'],claims:['paypal'],safeUrl:'https://www.paypal.com/ca/home'},
+  apple:{label:'Apple',category:'Technology',domains:['apple.com'],claims:['apple id','icloud'],safeUrl:'https://www.apple.com/ca/'},
+  amazon:{label:'Amazon',category:'Marketplace',domains:['amazon.com','amazon.ca'],claims:['amazon'],safeUrl:'https://www.amazon.ca/'},
+  google:{label:'Google',category:'Technology',domains:['google.com'],claims:['google account','gmail'],safeUrl:'https://www.google.com/'},
+  microsoft:{label:'Microsoft',category:'Technology',domains:['microsoft.com','live.com','office.com'],claims:['microsoft','office 365','outlook'],safeUrl:'https://www.microsoft.com/en-ca/'},
+  netflix:{label:'Netflix',category:'Streaming',domains:['netflix.com'],claims:['netflix'],safeUrl:'https://www.netflix.com/ca/'},
+  facebook:{label:'Facebook',category:'Social platform',domains:['facebook.com'],claims:['facebook'],safeUrl:'https://www.facebook.com/'},
+  instagram:{label:'Instagram',category:'Social platform',domains:['instagram.com'],claims:['instagram'],safeUrl:'https://www.instagram.com/'}
 };
+function normalizeHostname(value){return String(value||'').trim().toLowerCase().replace(/^\[|\]$/g,'').replace(/\.$/,'');}
+function domainBoundaryMatches(host,domain){
+  const h=normalizeHostname(host),d=normalizeHostname(domain);
+  return !!h && !!d && (h===d || h.endsWith('.'+d));
+}
+function officialBrandForHost(host){
+  for(const [id,brand] of Object.entries(verifiedBrandRegistry)){
+    const domain=brand.domains.find(d=>domainBoundaryMatches(host,d));
+    if(domain) return {id,...brand,matchedDomain:domain};
+  }
+  return null;
+}
+function escapedPattern(value){return String(value).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function textClaimsBrand(text,brand){
+  const source=String(text||'').toLowerCase().replace(/[-_.]+/g,' ');
+  return brand.claims.some(claim=>new RegExp('(^|[^a-z0-9])'+escapedPattern(claim)+'(?=$|[^a-z0-9])','i').test(source));
+}
+function claimedBrands(text){
+  return Object.entries(verifiedBrandRegistry).filter(([,brand])=>textClaimsBrand(text,brand)).map(([id,brand])=>({id,...brand}));
+}
 const shorteners=['bit.ly','tinyurl.com','t.co','goo.gl','is.gd','cutt.ly','ow.ly','buff.ly','rebrand.ly','shorturl.at','rb.gy','bitly.ws'];
 let scanHistory=[];
 try{scanHistory=JSON.parse(localStorage.getItem('proxuma_sense_history_v2')||'[]');if(!Array.isArray(scanHistory))scanHistory=[];}catch(e){scanHistory=[];}
@@ -2091,24 +2158,35 @@ function detectFileDeliveryRisk(input){
 
 function parseTarget(raw){
   const clean=cleanInput(raw).toLowerCase();
-  let host='', path='', validUrl=false;
+  let host='', path='', validUrl=false, unsupportedScheme='';
   try{
     let candidate=clean;
+    const explicitScheme=candidate.match(/^([a-z][a-z0-9+.-]*):\/\//i)?.[1]?.toLowerCase()||'';
+    if(explicitScheme && !['http','https'].includes(explicitScheme)) return {clean,host,path,validUrl,unsupportedScheme:explicitScheme};
     if(!/^https?:\/\//i.test(candidate) && /[./]/.test(candidate) && !/\s/.test(candidate)) candidate='https://'+candidate;
     const u=new URL(candidate);
-    host=u.hostname.replace(/^www\./,'');
+    host=u.hostname.replace(/^www\./,'').replace(/^\[|\]$/g,'');
     path=(u.pathname+' '+u.search+' '+u.hash).toLowerCase();
     validUrl=!!host;
   }catch(e){}
-  return {clean,host,path,validUrl};
+  return {clean,host,path,validUrl,unsupportedScheme};
+}
+function directIpVersion(host){
+  const value=String(host||'').toLowerCase().replace(/^\[|\]$/g,'');
+  if(value.includes(':') && /^[0-9a-f:.]+$/i.test(value)) return 6;
+  const parts=value.split('.');
+  if(parts.length===4 && parts.every(p=>/^\d{1,3}$/.test(p)&&Number(p)<=255)) return 4;
+  return 0;
 }
 function analyze(raw){
-  const original=cleanInput(raw); const {clean,host,path,validUrl}=parseTarget(original);
+  const original=cleanInput(raw); const {clean,host,path,validUrl,unsupportedScheme}=parseTarget(original);
   let score=0, flags=[], actions=[], technical=[], malformed=false;
   if(!clean){return {status:'INVALID',score:0,flags:[{name:'No input entered',score:0}],actions:['Enter a URL, domain, or suspicious text first.'],technical:['No scan performed.'],malformed:true,summary:'No scan target was provided.'};}
   if(clean.length>2500){return {status:'INVALID',score:0,flags:[{name:'Input too large for local scan',score:0}],actions:['Shorten the sample before scanning locally.'],technical:['Scan blocked to protect browser performance.'],malformed:true,summary:'The input was too large for a safe local browser scan.'};}
+  if(unsupportedScheme){return {status:'INVALID',score:0,flags:[{name:'Unsupported URL scheme',score:0}],actions:['Use a normal HTTPS website address.'],technical:['The '+unsupportedScheme.toUpperCase()+' scheme is outside the supported web-scan boundary.'],malformed:true,summary:'Sense accepts HTTP or HTTPS web destinations only.'};}
   const hasLure=/(login|verify|password|account|payment|bank|invoice|wallet|crypto|claim|prize|reward|winner|gift|airdrop|security|urgent|suspended|locked|update|confirm)/i.test(clean);
-  const officialHost = host && Object.values(knownBrands).some(list=>list.includes(host));
+  const officialBrand=host?officialBrandForHost(host):null;
+  const officialHost=!!officialBrand;
   if(!validUrl && !/\s/.test(clean) && !hasLure){malformed=true; add(flags,actions,'Unrecognized format',0,'Use a valid URL, domain, or meaningful message sample.',technical,'Input is not a valid URL/domain or meaningful text sample.');}
 
   const fileIntel=detectFileDeliveryRisk(clean);
@@ -2123,7 +2201,8 @@ function analyze(raw){
   }
 
   if(clean.includes('http://')) score+=add(flags,actions,'Unsecured HTTP',15,'Avoid entering credentials on non-HTTPS sites.',technical,'Missing HTTPS encryption');
-  if(/(?:\d{1,3}\.){3}\d{1,3}/.test(clean)) score+=add(flags,actions,'Direct IP destination',30,'Do not trust direct IP links from messages or QR codes.',technical,'Direct IP routing detected');
+  const ipVersion=validUrl?directIpVersion(host):0;
+  if(ipVersion) score+=add(flags,actions,'Direct IPv'+ipVersion+' destination',30,'Do not trust direct IP links from messages or QR codes.',technical,'Direct IPv'+ipVersion+' routing detected');
   if(clean.includes('xn--')) score+=add(flags,actions,'Punycode spoof indicator',25,'Treat punycode domains as suspicious unless you typed them yourself.',technical,'Punycode marker detected');
   if(/%[0-9a-f]{2}/i.test(clean)) score+=add(flags,actions,'Encoded URL characters',10,'Be careful with links that hide characters through encoding.',technical,'Encoded URL characters detected');
   if(clean.includes('@') && validUrl) score+=add(flags,actions,'User-info URL trick',22,'Avoid URLs using @ because they can hide the real destination.',technical,'@ symbol present in URL authority/path');
@@ -2151,24 +2230,31 @@ function analyze(raw){
     [/payment|bank|invoice|wallet|card|billing/i,'Financial lure',15], [/crypto|airdrop/i,'Crypto lure',20],
     [/claim|prize|reward|winner|gift|free/i,'Prize or reward lure',12]
   ];
-  for(const [re,label,pts] of lureRules){ if(re.test(combined)) score+=add(flags,actions,label,pts,null,technical,null); }
+  for(const [re,label,pts] of lureRules){ if(!officialHost && re.test(combined)) score+=add(flags,actions,label,pts,null,technical,null); }
+  const rentalContext=/(apartment|rental|rent\b|landlord|lease|tenant|housing|first[-_ ]?month|last[-_ ]?month)/i.test(combined);
+  const rentalPayment=/(deposit|payment|e[-_ ]?transfer|application[-_ ]?fee|holding[-_ ]?fee|wire|send[-_ ]?money)/i.test(combined);
+  if(!officialHost && rentalContext && rentalPayment) score+=add(flags,actions,'Rental payment lure',18,'Do not send a deposit until you independently verify the property and the person authorized to rent it.',technical,'Housing language appears together with an advance-payment request');
 
   if(host){
     if(shorteners.includes(host)) score+=add(flags,actions,'Known shortened link',18,'Expand shortened links before clicking.',technical,'Known URL shortener detected');
     const tld=(host.split('.').pop()||'');
     const labels=host.split('.');
-    if(/\d/.test(tld)) score+=add(flags,actions,'Malformed or numeric TLD',22,'Do not trust domains with strange number-based endings.',technical,'Domain ending contains numbers');
-    if(labels.length>=3) score+=add(flags,actions,'Subdomain stacking',10,'Check the true root domain before trusting the link.',technical,'Multiple subdomain layers detected');
-    if((host.match(/-/g)||[]).length>=3) score+=add(flags,actions,'Hyphen-stacked domain',18,'Long hyphen chains are common in fake security/login pages.',technical,'Long hyphen chain detected');
-    if(host.length>45) score+=add(flags,actions,'Unusually long domain',10,null,technical,'Unusually long domain detected');
-    if(/\.ru$|\.tk$|\.zip$|\.mov$|\.top$|\.xyz$/.test(host)) score+=add(flags,actions,'Risky or abuse-prone domain extension',16,null,technical,'Risky or abuse-prone domain extension detected');
+    if(!ipVersion && /\d/.test(tld)) score+=add(flags,actions,'Malformed or numeric TLD',22,'Do not trust domains with strange number-based endings.',technical,'Domain ending contains numbers');
+    if(labels.length>=3 && !officialHost) score+=add(flags,actions,'Subdomain stacking',10,'Check the true root domain before trusting the link.',technical,'Multiple subdomain layers detected');
+    if((host.match(/-/g)||[]).length>=3 && !officialHost) score+=add(flags,actions,'Hyphen-stacked domain',18,'Long hyphen chains are common in fake security/login pages.',technical,'Long hyphen chain detected');
+    if(host.length>45 && !officialHost) score+=add(flags,actions,'Unusually long domain',10,null,technical,'Unusually long domain detected');
+    if(/\.ru$|\.tk$|\.zip$|\.mov$|\.top$|\.xyz$/.test(host) && !officialHost) score+=add(flags,actions,'Risky or abuse-prone domain extension',16,null,technical,'Risky or abuse-prone domain extension detected');
     if(!shorteners.includes(host) && (/^bi[tzs]?\.ly\d*$/.test(host) || /^biz\.ly\d*$/.test(host) || /(^|\.)ly\d+$/.test(host))){
       score+=add(flags,actions,'Fake shortener mimic',24,'This resembles a shortened link but does not match a trusted shortener pattern.',technical,'Shortener imitation pattern detected');
     }
     if(/\.{2,}/.test(host) || /--/.test(host)) score+=add(flags,actions,'Abnormal domain punctuation',10,null,technical,'Abnormal domain punctuation detected');
-    for(const brand of Object.keys(knownBrands)){
-      if(host.includes(brand) && !knownBrands[brand].includes(host)){
-        score+=add(flags,actions,'Possible '+brand.charAt(0).toUpperCase()+brand.slice(1)+' impersonation',18,'Visit the official site manually instead of trusting this link.',technical,'Brand name appears outside its official root domain');
+    if(officialBrand){
+      flags.push({name:'Verified '+officialBrand.label+' domain boundary',score:0});
+      technical.push('Verified Brand Registry matched '+officialBrand.label+' at '+officialBrand.matchedDomain+'.');
+    }else{
+      const claims=claimedBrands(clean);
+      for(const brand of claims){
+        score+=add(flags,actions,'Probable '+brand.label+' impersonation',45,'Do not sign in here. Open the organization\'s verified website manually.',technical,brand.label+' branding appears outside every verified domain boundary in the local registry.');
       }
     }
   } else if(hasLure && !/\s/.test(clean)) {
@@ -2177,6 +2263,7 @@ function analyze(raw){
 
   const positive=flags.filter(f=>f.score>0).length;
   if(positive>=3) score+=add(flags,actions,'Multi-signal threat stack',15,'Multiple independent warning signs were found together.',technical,null);
+  if(/^http:\/\//i.test(clean) && score<20) score=20;
   score=Math.min(100,score);
   let status=malformed?'INVALID':score>=45?'RISKY':score>=20?'CAUTION':'SAFE';
   if(!technical.length){
@@ -2195,7 +2282,11 @@ function analyze(raw){
     status==='RISKY'?'This target combines multiple scam-style signals, so Sense treats it as high risk.':
     status==='CAUTION'?'This target has warning signs that deserve caution, even if it is not a full high-risk match.':
     'Sense did not detect strong visible scam patterns in this input.';
-  return {status,score,flags,actions,technical,malformed,summary,host};
+  const finalBrandClaims=claimedBrands(clean);
+  const brandVerification=officialBrand?{state:'verified',brand:officialBrand.label,matchedDomain:officialBrand.matchedDomain,host,safeUrl:officialBrand.safeUrl}:finalBrandClaims.length?{state:'mismatch',brands:finalBrandClaims.map(b=>b.label),verifiedDomains:[...new Set(finalBrandClaims.flatMap(b=>b.domains))],safeUrl:finalBrandClaims.length===1?finalBrandClaims[0].safeUrl:null,host}:{state:'not-claimed',host};
+  if(brandVerification.state==='verified' && status==='SAFE') summary='The hostname is inside the verified '+brandVerification.brand+' domain boundary, and Sense found no strong visible scam patterns. This is supporting evidence, not a guarantee.';
+  if(brandVerification.state==='mismatch') summary='The page or message claims a protected brand identity, but the hostname is outside that brand\'s verified domain boundaries.';
+  return {status,score,flags,actions,technical,malformed,summary,host,brandVerification};
 }
 function colorFor(status){return status==='RISKY'?'var(--red)':status==='CAUTION'?'var(--orange)':status==='INVALID'?'#aaa':'var(--neon)';}
 function technicalSeverity(r){
@@ -2236,6 +2327,47 @@ function updateSignalMap(r){
   const dot=document.getElementById('threatDot');
   dot.style.background=colorFor(r.status);
   dot.style.boxShadow=`0 0 12px ${colorFor(r.status)}`;
+}
+
+function updateBrandEvidence(r){
+  const evidence=r?.brandVerification||{state:'not-claimed',host:''};
+  const panel=document.getElementById('brandEvidencePanel');
+  const state=document.getElementById('brandEvidenceState');
+  const identity=document.getElementById('brandClaimedIdentity');
+  const actual=document.getElementById('brandActualHost');
+  const boundary=document.getElementById('brandVerifiedBoundary');
+  const decision=document.getElementById('brandEvidenceDecision');
+  const safeRoute=document.getElementById('brandSafeRoute');
+  if(!panel||!state||!identity||!actual||!boundary||!decision||!safeRoute)return;
+  panel.classList.remove('brand-ready','brand-verified','brand-mismatch','brand-neutral');
+  actual.textContent=evidence.host||'No hostname parsed';
+  safeRoute.classList.add('hidden');
+  safeRoute.removeAttribute('href');
+  if(evidence.state==='verified'){
+    panel.classList.add('brand-verified');
+    state.textContent='VERIFIED BOUNDARY';
+    identity.textContent=evidence.brand;
+    boundary.textContent=evidence.matchedDomain;
+    decision.textContent='Identity and host agree';
+  }else if(evidence.state==='mismatch'){
+    panel.classList.add('brand-mismatch');
+    state.textContent='IDENTITY MISMATCH';
+    identity.textContent=(evidence.brands||[]).join(', ')||'Protected brand';
+    boundary.textContent=(evidence.verifiedDomains||[]).join(' · ')||'No verified match';
+    decision.textContent='Do not sign in here';
+    if(/^https:\/\//i.test(String(evidence.safeUrl||''))){
+      safeRoute.href=evidence.safeUrl;
+      safeRoute.textContent='OPEN VERIFIED '+identity.textContent.toUpperCase();
+      safeRoute.setAttribute('aria-label','Open the verified website for '+identity.textContent);
+      safeRoute.classList.remove('hidden');
+    }
+  }else{
+    panel.classList.add('brand-neutral');
+    state.textContent=r?.status==='INVALID'?'NO VALID TARGET':'NO BRAND CLAIM';
+    identity.textContent='No protected brand identified';
+    boundary.textContent='Not applicable';
+    decision.textContent=r?.status==='INVALID'?'Correct the input':'Continue general scan';
+  }
 }
 
 
@@ -2333,6 +2465,7 @@ function runScan(){
   document.getElementById('senseThinks').textContent=r.summary;
   document.getElementById('threatLevel').textContent=risky?'ELEVATED':caution?'CAUTION':invalid?'INVALID':'LOW';
   updateSignalMap(r);
+  updateBrandEvidence(r);
   document.getElementById('statLevel').textContent=risky?'High':caution?'Medium':invalid?'Invalid':'Low';
   document.getElementById('statLevel').style.color=c;
   const signalCount=r.flags.filter(f=>f.score>0).length;
@@ -2361,6 +2494,15 @@ function setReadyState(){
   document.getElementById('primaryConcern').textContent='No concern identified yet';
   document.getElementById('patternResembles').textContent='Waiting for scan';
   document.getElementById('sensePosture').textContent='Inspect first';
+  const brandPanel=document.getElementById('brandEvidencePanel');
+  const brandRoute=document.getElementById('brandSafeRoute');
+  if(brandPanel){brandPanel.className='brand-evidence brand-ready';}
+  document.getElementById('brandEvidenceState').textContent='AWAITING SCAN';
+  document.getElementById('brandClaimedIdentity').textContent='Waiting for scan';
+  document.getElementById('brandActualHost').textContent='—';
+  document.getElementById('brandVerifiedBoundary').textContent='—';
+  document.getElementById('brandEvidenceDecision').textContent='Inspect first';
+  if(brandRoute){brandRoute.classList.add('hidden');brandRoute.removeAttribute('href');}
   document.getElementById('signalsList').innerHTML='<li>No scan has been run yet</li>';
   document.getElementById('actionsList').innerHTML='<li><span class="ico">i</span><span>Paste a link or choose a sample to inspect it locally.</span></li>';
   const techCard=document.getElementById('techCard');
